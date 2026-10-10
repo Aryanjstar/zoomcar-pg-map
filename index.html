@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a2f28" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>PGs from Zoomcar</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --ink: #1c1915;
+      --muted: #5c564c;
+      --line: #e4dccf;
+      --paper: #f6f1e8;
+      --sheet: #fffdf9;
+      --go: #b85a28;
+      --go-deep: #8a3e16;
+      --backup: #2f5d73;
+      --skip: #8a847a;
+      --start: #1f6b52;
+      --shadow: 0 10px 30px rgba(28, 25, 21, 0.16);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+    }
+    #map { position: fixed; inset: 0; }
+    .top {
+      position: fixed;
+      z-index: 500;
+      top: calc(10px + env(safe-area-inset-top));
+      left: 12px;
+      right: 12px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      pointer-events: none;
+    }
+    .start-card, .locate {
+      pointer-events: auto;
+      background: var(--sheet);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+    .start-card {
+      flex: 1;
+      border-radius: 16px;
+      padding: 10px 12px;
+    }
+    .start-card p {
+      margin: 0;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--start);
+      font-weight: 700;
+    }
+    .start-card strong {
+      display: block;
+      margin-top: 2px;
+      font-size: 15px;
+      line-height: 1.25;
+    }
+    .start-card span {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .locate {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      font: inherit;
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--start);
+    }
+    .sheet {
+      position: fixed;
+      z-index: 600;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      max-height: 52%;
+      background: var(--sheet);
+      border-radius: 22px 22px 0 0;
+      box-shadow: 0 -8px 30px rgba(28, 25, 21, 0.14);
+      display: flex;
+      flex-direction: column;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .sheet.open { max-height: 74%; }
+    .grab {
+      width: 42px;
+      height: 4px;
+      border-radius: 99px;
+      background: #d9d0c3;
+      margin: 8px auto 6px;
+    }
+    .sheet-head { padding: 0 16px 8px; }
+    .sheet-head h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .sheet-head p {
+      margin: 4px 0 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .filters { display: flex; gap: 6px; overflow-x: auto; }
+    .filters button, .actions button, .back {
+      font: inherit;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+    }
+    .filters button {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 650;
+    }
+    .filters button.on {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+    .list, .detail {
+      overflow: auto;
+      padding: 4px 12px 16px;
+    }
+    .card {
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 8px;
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+    .card.go { border-color: #efd3c4; }
+    .km {
+      font-size: 18px;
+      font-weight: 750;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .km small {
+      display: block;
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 650;
+      color: var(--muted);
+    }
+    .card h2 { margin: 0; font-size: 15px; line-height: 1.25; }
+    .card .meta, .detail .meta {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .tag {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--go-deep);
+    }
+    .tag.backup { color: var(--backup); }
+    .tag.skip { color: var(--skip); }
+    .detail h2 { margin: 0 0 4px; font-size: 22px; line-height: 1.15; }
+    .detail .lead {
+      font-size: 16px;
+      margin: 8px 0;
+      line-height: 1.35;
+    }
+    .detail .note {
+      background: #f7f3ec;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 14px;
+      line-height: 1.4;
+      margin: 0 0 10px;
+    }
+    .addr {
+      font-size: 14px;
+      line-height: 1.4;
+      margin: 0 0 12px;
+    }
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .actions button, .back {
+      border-radius: 12px;
+      padding: 14px 10px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .actions .primary {
+      background: var(--start);
+      color: #fff;
+      border-color: var(--start);
+      grid-column: 1 / -1;
+    }
+    .back {
+      margin-bottom: 10px;
+      padding: 8px 12px;
+    }
+    .toast {
+      position: fixed;
+      z-index: 800;
+      left: 50%;
+      bottom: calc(62% + 8px);
+      transform: translateX(-50%);
+      background: var(--ink);
+      color: #fff;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s linear;
+    }
+    .toast.show { opacity: 1; }
+    .pin-wrap { background: none; border: none; }
+    .pin {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      border: 2px solid #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,.25);
+    }
+    .pin b {
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .leaflet-top.leaflet-right { margin-top: 86px; }
+    .pin.go { background: var(--go); }
+    .pin.backup { background: var(--backup); }
+    .pin.skip { background: var(--skip); }
+    .pin.on { outline: 3px solid var(--ink); }
+    .start-pin {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--start);
+      border: 3px solid #fff;
+      box-shadow: 0 0 0 6px rgba(31, 107, 82, 0.25);
+    }
+    .leaflet-control-attribution { font-size: 10px; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <div class="top">
+    <div class="start-card">
+      <p>Start here</p>
+      <strong>Zoomcar, Diamond District</strong>
+      <span>Tower B, HAL Old Airport Road. Then tap a PG.</span>
+    </div>
+    <button class="locate" id="locate" type="button">Me</button>
+  </div>
+  <section class="sheet" id="sheet">
+    <div class="grab"></div>
+    <div id="listView">
+      <div class="sheet-head">
+        <h1 id="listTitle">Nearest ladies PGs</h1>
+        <p id="listSub">Inside 3 km of the office. Nearest first. Tap one, then Uber or walk.</p>
+        <div class="filters">
+          <button type="button" id="f-best">Rooms available</button>
+          <button type="button" id="f-near" class="on">Nearest worth a look</button>
+          <button type="button" id="f-all">All within 3 km</button>
+        </div>
+      </div>
+      <div class="list" id="list"></div>
+    </div>
+    <div class="detail" id="detail" hidden></div>
+  </section>
+  <div class="toast" id="toast">Copied. Paste it into Uber.</div>
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const OFFICE = {
+      lat: 12.960107,
+      lng: 77.644006,
+      address: "7th Floor, Tower-B, Diamond District, 150, HAL Old Airport Road, Kodihalli, Bengaluru 560008"
+    };
+
+    const PLACES = [
+      {
+        id: "future",
+        tier: "go",
+        name: "Future Home Ladies PG",
+        phone: "76709 71315",
+        tel: "+917670971315",
+        area: "BDA Colony, Domlur",
+        address: "278, 27th Main Road, BDA Colony, Domlur Village, Bengaluru 560071",
+        lat: 12.96346, lng: 77.63524,
+        offer: "Double room, North Indian food, ₹9,500 per head",
+        why: "Best one to see first if both of them want the same room. Girls only, 4.8 from 33 reviews, beside a park. Residents said food, laundry, and electricity are in the rent.",
+        caution: "Confirm the double is still free before you leave the office."
+      },
+      {
+        id: "lifestyle",
+        tier: "go",
+        name: "New Lifestyle PG for Ladies",
+        phone: "74115 89689",
+        tel: "+917411589689",
+        area: "Domlur 1st Stage",
+        address: "763, 1st Main, 3rd Cross Road, Domlur 1st Stage, Bengaluru 560071",
+        lat: 12.960047, lng: 77.637207,
+        offer: "₹9,000 or ₹10,000 per head. Extra cot in the ₹10,000 room can come out.",
+        why: "Close residential Domlur lane, west of the office. The price is the lowest real offer from the calls.",
+        caution: "Only one public review. Look at the room, bathroom, and mattress before any deposit."
+      },
+      {
+        id: "royal",
+        tier: "go",
+        name: "Royal Living PG for Ladies",
+        phone: "81477 07413",
+        tel: "+918147707413",
+        area: "HAL 3rd Stage, Kodihalli",
+        address: "18/1, 15th Main, 8th Cross Road, HAL 3rd Stage, BDA Layout, Kodihalli, Bengaluru 560008",
+        lat: 12.96552, lng: 77.64988,
+        offer: "₹12,500 per person. All amenities. New building with a lift.",
+        why: "Quiet HAL 3rd Stage, under 1 km northeast. 4.9 from 46 reviews. Girls only.",
+        caution: "A July 2025 review said cleaning had slipped. See this new building yourself."
+      },
+      {
+        id: "nagarjuna",
+        tier: "go",
+        name: "Nagarjuna Luxury PG",
+        phone: "70931 23099",
+        tel: "+917093123099",
+        area: "HAL 2nd Stage, opposite Diamond District",
+        address: "130, Srishti Homes, 16th B Main Road, HAL 2nd Stage, Kodihalli, Bengaluru 560008",
+        lat: 12.96543, lng: 77.64394,
+        offer: "Two single rooms at ₹10,500 each",
+        why: "Across the road from the office, in a residential HAL lane. Homely-food reviews. Same phone also runs Divine Dwell, the other pin just north.",
+        caution: "These are two singles, not one shared room. One 2024 review mentioned cockroaches. Check the room."
+      },
+      {
+        id: "divine",
+        tier: "go",
+        name: "Divine Dwell PG",
+        phone: "70931 23099",
+        tel: "+917093123099",
+        area: "HAL 2nd Stage, 15th Main",
+        address: "2365, 15th Main Road, HAL 2nd Stage, Kodihalli, Bengaluru 560038",
+        lat: 12.965652, lng: 77.645409,
+        offer: "Same owner number as Nagarjuna. Ask which building has the ₹10,500 singles.",
+        why: "Second building of the closest girls' PG, still a 10 minute walk north of Tower B.",
+        caution: "Do not assume the vacant singles are in this building until the owner says so."
+      },
+      {
+        id: "colours",
+        tier: "go",
+        name: "Colours Ladies PG",
+        phone: "63645 55741",
+        tel: "+916364555741",
+        area: "Domlur 1st Stage",
+        address: "330/3, 3rd Main Road, 7th Cross, next to Bharath Villa, Domlur 1st Stage, Bengaluru 560071",
+        lat: 12.95754, lng: 77.63926,
+        offer: "Two single rooms, ₹13,000 and ₹15,000",
+        why: "Residential Domlur, about 10 minutes southwest. 4.6 from 61 reviews, with long stays. Food, lift, and Wi-Fi were listed.",
+        caution: "The two rooms are different prices. Ask to see both."
+      },
+      {
+        id: "bhavya",
+        tier: "backup",
+        name: "Bhavya Reddy Luxury PG",
+        phone: "99002 93666",
+        tel: "+919900293666",
+        area: "Domlur, nearest pin",
+        address: "126/B, 1st Cross, 100 Feet Road, Domlur, Bengaluru 560071",
+        lat: 12.95691, lng: 77.64243,
+        offer: "No one picked up. Call again from the office. It is the closest.",
+        why: "Many girls stayed a year or two and liked the food. Walkable from Tower B in a few minutes.",
+        caution: "A May 2025 review mentioned poor cleanliness and a rat. See it. Do not pay without seeing the room."
+      },
+      {
+        id: "sns",
+        tier: "backup",
+        name: "New SNS Luxury PG",
+        phone: "96424 55671",
+        tel: "+919642455671",
+        area: "Amarjyoti Layout, Domlur",
+        address: "200, Amarjyoti Layout, Domlur, Bengaluru 560071",
+        lat: 12.955554, lng: 77.642703,
+        offer: "Line was busy. Try again. Very close.",
+        why: "South of Diamond District, inside the 1 km circle.",
+        caution: "Public rating is 4.2 from 42 reviews, weaker than the others. Only go if the better ones are full."
+      },
+      {
+        id: "nlr",
+        tier: "backup",
+        name: "NLR Luxury PG for Ladies",
+        phone: "97050 60795",
+        tel: "+919705060795",
+        area: "HAL 3rd Stage, Kodihalli",
+        address: "1642, 11th Main Road, HAL 3rd Stage, Kodihalli, Bengaluru 560008",
+        lat: 12.96815, lng: 77.64998,
+        offer: "Double sharing is not available. Ask if two singles are.",
+        why: "Strongest reviews on the list: 4.9 from 49. Food, lift, geyser, biometric. A resident got the deposit back.",
+        caution: "Do not walk here expecting the shared double."
+      },
+      {
+        id: "ashish",
+        tier: "backup",
+        name: "Ashish Girls PG",
+        phone: "90905 66566",
+        tel: "+919090566566",
+        area: "HAL 3rd Stage",
+        address: "663, 5th A Main, 6th Cross, HAL 3rd Stage, Indiranagar, Bengaluru 560075",
+        lat: 12.97094, lng: 77.651749,
+        offer: "Call was not picked. Try again.",
+        why: "Girls-only stay in HAL 3rd Stage. Older listing was about ₹8,500–₹9,500 for a share, plus maintenance, with a kitchen rather than full meals.",
+        caution: "Get the current rent on the call. Maintenance was extra last time it was listed."
+      },
+      {
+        id: "skn",
+        tier: "backup",
+        name: "SKN Ladies PG",
+        phone: "No public number",
+        tel: "",
+        area: "BDA Colony, Domlur",
+        address: "27/5, 8th Cross Road, BDA Colony, Domlur, Bengaluru 560071",
+        lat: 12.96326, lng: 77.63526,
+        offer: "No phone. It sits in the same lanes as Future Home.",
+        why: "5.0 from 25 reviews. Food and a park mentioned. Ask at Future Home if you are already there.",
+        caution: "Without a number, only go if you are already walking that side."
+      },
+      {
+        id: "jasvani",
+        tier: "backup",
+        name: "S.L.V. Jasvani PG",
+        phone: "90088 95300",
+        tel: "+919008895300",
+        area: "Kodihalli",
+        address: "394, Hithya Shree, 6th Main, 6th Cross Road, Bengaluru 560008",
+        lat: 12.97313, lng: 77.6376,
+        offer: "Could not connect. Try once more.",
+        why: "4.9 from 7 reviews. Safe-stay and food comments. A bit farther, still under 2 km.",
+        caution: "Few reviews. See it before treating the rating as settled."
+      },
+      {
+        id: "steligence",
+        tier: "backup",
+        name: "Steligence PG for Ladies",
+        phone: "87222 74143",
+        tel: "+918722274143",
+        area: "Near Indiranagar Metro",
+        address: "125, Sri Sai Sadan, 10th Main, 6th Cross, Bengaluru 560038",
+        lat: 12.97655, lng: 77.63822,
+        offer: "They are sending details on WhatsApp.",
+        why: "4.7 from 22 reviews. Biometric, guard, three meals, attached bath. Livelier Indiranagar side.",
+        caution: "About a 35 minute walk. Uber is the easier trip from the office."
+      },
+      {
+        id: "vlsr",
+        tier: "backup",
+        name: "VLSR PG for Ladies",
+        phone: "79817 41011",
+        tel: "+917981741011",
+        area: "Near Nagarjuna Restaurant",
+        address: "Link Road 4, near Nagarjuna Restaurant, Bengaluru 560038",
+        lat: 12.97661, lng: 77.63667,
+        offer: "Not reached on the last calling round. Rent unknown.",
+        why: "4.6 from 14 reviews. Food and attached bathrooms mentioned.",
+        caution: "Ask the rent and whether two friends can share before you travel."
+      },
+      {
+        id: "sv",
+        tier: "backup",
+        name: "SV Stay In PG",
+        phone: "85500 81117",
+        tel: "+918550081117",
+        area: "Near Indiranagar Metro",
+        address: "Vinayak Nivas, 21st Cross Road, G 6th Street, Bengaluru 560008",
+        lat: 12.97884, lng: 77.62986,
+        offer: "Call was not picked.",
+        why: "Family-run girls PG. 4.3 from 71 reviews. CCTV. Near the metro.",
+        caution: "About 2.6 km. Fine as a later stop, not the first walk."
+      },
+      {
+        id: "escort",
+        tier: "skip",
+        name: "Royal Escort PG for Ladies",
+        phone: "85500 18555",
+        tel: "+918550018555",
+        area: "Murugeshpalya, Old Airport Road",
+        address: "73, Kakayappa Layout, HAL Old Airport Road, Murugeshpalya, Bengaluru 560017",
+        lat: 12.95981, lng: 77.65661,
+        offer: "Only if the closer ones are full.",
+        why: "About 1.4 km east. Several reviews praise the food.",
+        caution: "One August 2025 review describes bad food, a rude manager, and trouble after the advance was paid. See the room. Pay nothing before that."
+      },
+      {
+        id: "indiranagar",
+        tier: "skip",
+        name: "Indiranagar Ladies PG",
+        phone: "77953 68821",
+        tel: "+917795368821",
+        area: "Near Silicon City School",
+        address: "855/1, 5th Cross, 5th Main Road, near Silicon City Public School, Bengaluru 560038",
+        lat: 12.98187, lng: 77.64129,
+        offer: "Skipped on the call.",
+        why: "Older reviews described pure vegetarian food, close to Indiranagar Metro. 4.8 from 31 reviews.",
+        caution: "Call note: skipped, they are non-veg. About 2.4 km north."
+      },
+      {
+        id: "manjunatha",
+        tier: "skip",
+        name: "Sri Manjunatha Luxury Ladies PG",
+        phone: "88847 20899",
+        tel: "+918884720899",
+        area: "Michael Palya",
+        address: "18, 4th Cross, Michael Palya, Bengaluru 560038",
+        lat: 12.98142, lng: 77.64462,
+        offer: "Not available.",
+        why: "4.9 from 18 reviews, but the call said there is no room.",
+        caution: "No point going unless you call again and they have opened a room."
+      },
+      {
+        id: "samskruthi",
+        tier: "skip",
+        name: "Samskruthi Living Nandi",
+        phone: "63648 36489",
+        tel: "+916364836489",
+        area: "12th Cross, Indiranagar",
+        address: "19, 12th Cross Road, Bengaluru 560038",
+        lat: 12.98077, lng: 77.63795,
+        offer: "Ruled out.",
+        why: "Vegetarian PG near a park and the metro.",
+        caution: "Veg was not preferred, and only a 4-sharing room was free."
+      },
+      {
+        id: "anitha",
+        tier: "skip",
+        name: "Anitha Homes PG",
+        phone: "90593 24559",
+        tel: "+919059324559",
+        area: "Halasuru, near the metro",
+        address: "28, Car Street, next to Indian Bank, Halasuru, Bengaluru 560008",
+        lat: 12.97594, lng: 77.62547,
+        offer: "₹11,000 and ₹12,000 rooms, but they refused photos.",
+        why: "4.9 from 97 reviews and close to Halasuru Metro. Farthest pin, still under 3 km.",
+        caution: "Do not pay from a place that would not show the room. Only go if you can see it first."
+      },
+      {
+        id: "royalstay",
+        tier: "skip",
+        name: "Royal Stay Luxury Ladies PG",
+        phone: "63637 42182",
+        tel: "+916363742182",
+        area: "Domlur, Intermediate Ring Road",
+        address: "330/11, Intermediate Ring Road, AK Colony, Domlur 1st Stage, Bengaluru 560071",
+        offer: "₹12,500 quoted. Sharing type was not confirmed.",
+        why: "Domlur side of the office. Paste the address into Uber. The exact door pin was not reliable enough to drop on this map.",
+        caution: "Some reviews mention bedbugs and small rooms. Check the mattress if you go."
+      },
+      {
+        id: "manmayi",
+        tier: "skip",
+        name: "Manmayi Ladies PG",
+        phone: "99007 66337",
+        tel: "+919900766337",
+        area: "CMH Road, Indiranagar",
+        address: "Manmayi PG Mansion, CMH Road, next to Indiranagar Metro, Bengaluru",
+        offer: "3-sharing at ₹15,000 per head. Not worth the trip.",
+        why: "Newer building by the metro, about 2 km north. Exact door coordinate was not confirmed.",
+        caution: "Price is high for a 3-share. Skip unless everything closer is full."
+      }
+    ];
+
+    function kmBetween(a, b) {
+      const R = 6371;
+      const dLat = (b.lat - a.lat) * Math.PI / 180;
+      const dLng = (b.lng - a.lng) * Math.PI / 180;
+      const la1 = a.lat * Math.PI / 180;
+      const la2 = b.lat * Math.PI / 180;
+      const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
+      return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+    }
+
+    PLACES.forEach((p) => {
+      if (p.lat != null) {
+        p.km = kmBetween(OFFICE, p);
+        p.walkMin = Math.max(6, Math.round(p.km * 1.35 / 4.6 * 60));
+      } else {
+        p.km = p.id === "manmayi" ? 2.1 : 1.3;
+        p.walkMin = null;
+        p.noPin = true;
+      }
+    });
+
+    const map = L.map("map", { zoomControl: false, attributionControl: true }).setView([OFFICE.lat, OFFICE.lng], 15);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap"
+    }).addTo(map);
+    L.control.zoom({ position: "topright" }).addTo(map);
+    L.circle([OFFICE.lat, OFFICE.lng], {
+      radius: 1000, color: "#1f6b52", weight: 1.5, fillOpacity: 0.04
+    }).addTo(map);
+    L.circle([OFFICE.lat, OFFICE.lng], {
+      radius: 3000, color: "#8a847a", weight: 1, dashArray: "6 6", fillOpacity: 0
+    }).addTo(map);
+    L.marker([OFFICE.lat, OFFICE.lng], {
+      icon: L.divIcon({
+        className: "pin-wrap",
+        html: '<div class="start-pin"></div>',
+        iconSize: [18, 18],
+        iconAnchor: [9, 9]
+      }),
+      zIndexOffset: 1000,
+      title: "Zoomcar"
+    }).addTo(map).bindTooltip("Zoomcar · start here", { direction: "top", offset: [0, -8] });
+
+    let filter = "near";
+    let selected = null;
+    let routeLine = null;
+    let you = null;
+    const markers = new Map();
+
+    function visible() {
+      return PLACES
+        .filter((p) => p.km <= 3.05)
+        .filter((p) => filter === "all" || (filter === "best" ? p.tier === "go" : p.tier !== "skip"))
+        .sort((a, b) => a.km - b.km);
+    }
+
+    function pinIcon(p, on) {
+      return L.divIcon({
+        className: "pin-wrap",
+        html: `<div class="pin ${p.tier} ${on ? "on" : ""}"><b>${p.km.toFixed(1)}</b></div>`,
+        iconSize: [42, 42],
+        iconAnchor: [21, 21]
+      });
+    }
+
+    function drawMarkers() {
+      const show = new Set(visible().filter((p) => !p.noPin).map((p) => p.id));
+      PLACES.forEach((p) => {
+        if (p.noPin) return;
+        if (!show.has(p.id)) {
+          if (markers.has(p.id)) {
+            map.removeLayer(markers.get(p.id));
+            markers.delete(p.id);
+          }
+          return;
+        }
+        const icon = pinIcon(p, selected && selected.id === p.id);
+        if (markers.has(p.id)) {
+          markers.get(p.id).setIcon(icon);
+        } else {
+          const marker = L.marker([p.lat, p.lng], { icon, title: p.name }).addTo(map);
+          marker.on("click", () => openDetail(p.id));
+          markers.set(p.id, marker);
+        }
+      });
+    }
+
+    function tag(p) {
+      if (p.tier === "go") return ["Room from the call", ""];
+      if (p.tier === "backup") return ["Call again, still close", "backup"];
+      return ["Ruled out for now", "skip"];
+    }
+
+    function renderList() {
+      const rows = visible();
+      const title = document.getElementById("listTitle");
+      const sub = document.getElementById("listSub");
+      title.textContent = filter === "best"
+        ? "Rooms you can still take"
+        : filter === "near"
+          ? "Nearest places worth a look"
+          : "Everything inside 3 km";
+      sub.textContent = rows.length + " places, nearest first. The number on each pin is kilometres from Zoomcar.";
+      const list = document.getElementById("list");
+      list.innerHTML = rows.map((p) => {
+        const [label, cls] = tag(p);
+        const dist = p.noPin ? "Pin?" : p.km.toFixed(1) + " km";
+        const walk = p.walkMin ? p.walkMin + " min walk" : "Paste address";
+        return `<button class="card ${p.tier}" type="button" data-id="${p.id}">
+          <div class="km">${dist}<small>${walk}</small></div>
+          <div>
+            <h2>${p.name}</h2>
+            <p class="meta">${p.offer}</p>
+            <span class="tag ${cls}">${label}</span>
+          </div>
+        </button>`;
+      }).join("");
+    }
+
+    function setFilter(next) {
+      filter = next;
+      ["best", "near", "all"].forEach((id) => {
+        document.getElementById("f-" + id).classList.toggle("on", id === next);
+      });
+      if (selected && !visible().some((p) => p.id === selected.id)) closeDetail();
+      drawMarkers();
+      renderList();
+    }
+
+    async function drawRoute(p) {
+      if (routeLine) {
+        map.removeLayer(routeLine);
+        routeLine = null;
+      }
+      if (p.noPin) return;
+      const url = `https://router.project-osrm.org/route/v1/foot/${OFFICE.lng},${OFFICE.lat};${p.lng},${p.lat}?overview=full&geometries=geojson`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        const coords = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+        const metres = data.routes[0].distance;
+        const mins = Math.max(6, Math.round(metres / 1000 / 4.6 * 60));
+        routeLine = L.polyline(coords, { color: "#1f6b52", weight: 5, opacity: 0.9 }).addTo(map);
+        const walk = document.getElementById("walkLine");
+        if (walk) walk.textContent = (metres / 1000).toFixed(1) + " km on foot · about " + mins + " min from Tower B";
+        map.fitBounds(routeLine.getBounds(), { paddingTopLeft: [20, 90], paddingBottomRight: [20, 280] });
+      } catch (err) {
+        routeLine = L.polyline([[OFFICE.lat, OFFICE.lng], [p.lat, p.lng]], {
+          color: "#1f6b52", weight: 4, dashArray: "8 8"
+        }).addTo(map);
+      }
+    }
+
+    function mapsWalk(p) {
+      const dest = p.noPin ? encodeURIComponent(p.address) : `${p.lat},${p.lng}`;
+      return `https://www.google.com/maps/dir/?api=1&origin=${OFFICE.lat},${OFFICE.lng}&destination=${dest}&travelmode=${p.km < 1.3 && !p.noPin ? "walking" : "driving"}`;
+    }
+
+    function uberLink(p) {
+      const pickup = `pickup[latitude]=${OFFICE.lat}&pickup[longitude]=${OFFICE.lng}&pickup[nickname]=${encodeURIComponent("Zoomcar Diamond District")}&pickup[formatted_address]=${encodeURIComponent(OFFICE.address)}`;
+      if (p.noPin) {
+        return `https://m.uber.com/ul/?action=setPickup&${pickup}&dropoff[formatted_address]=${encodeURIComponent(p.address)}&dropoff[nickname]=${encodeURIComponent(p.name)}`;
+      }
+      return `https://m.uber.com/ul/?action=setPickup&${pickup}&dropoff[latitude]=${p.lat}&dropoff[longitude]=${p.lng}&dropoff[nickname]=${encodeURIComponent(p.name)}&dropoff[formatted_address]=${encodeURIComponent(p.address)}`;
+    }
+
+    function copyBlock(p) {
+      const pin = p.noPin ? "" : `\n${p.lat}, ${p.lng}`;
+      return `${p.name}\n${p.address}${pin}`;
+    }
+
+    function openDetail(id) {
+      const p = PLACES.find((item) => item.id === id);
+      selected = p;
+      document.getElementById("sheet").classList.add("open");
+      document.getElementById("listView").hidden = true;
+      const detail = document.getElementById("detail");
+      detail.hidden = false;
+      const dist = p.noPin ? "Address only" : p.km.toFixed(1) + " km from Zoomcar";
+      const walk = p.walkMin ? `About ${p.walkMin} min on foot` : "Use Uber with the address";
+      detail.innerHTML = `
+        <button class="back" type="button" id="back">Back to list</button>
+        <h2>${p.name}</h2>
+        <p class="meta" id="walkLine">${dist} · ${walk} · ${p.area}</p>
+        <p class="lead">${p.offer}</p>
+        <p class="note">${p.why}</p>
+        <p class="note">${p.caution}</p>
+        <p class="addr">${p.address}</p>
+        <div class="actions">
+          <button class="primary" type="button" id="copyBtn">Copy address for Uber</button>
+          <button type="button" id="uberBtn">Open Uber</button>
+          <button type="button" id="walkBtn">${p.km < 1.3 && !p.noPin ? "Walk" : "Google Maps"}</button>
+          ${p.tel ? `<button type="button" id="callBtn">Call ${p.phone}</button>` : ""}
+        </div>`;
+      document.getElementById("back").onclick = closeDetail;
+      document.getElementById("copyBtn").onclick = async () => {
+        const text = copyBlock(p);
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch (err) {
+          const area = document.createElement("textarea");
+          area.value = text;
+          document.body.appendChild(area);
+          area.select();
+          document.execCommand("copy");
+          area.remove();
+        }
+        const toast = document.getElementById("toast");
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 1600);
+      };
+      document.getElementById("uberBtn").onclick = () => window.open(uberLink(p), "_blank");
+      document.getElementById("walkBtn").onclick = () => window.open(mapsWalk(p), "_blank");
+      const call = document.getElementById("callBtn");
+      if (call) call.onclick = () => { window.location.href = "tel:" + p.tel; };
+      drawMarkers();
+      if (!p.noPin) {
+        map.panTo([p.lat, p.lng]);
+        drawRoute(p);
+      }
+    }
+
+    function closeDetail() {
+      selected = null;
+      document.getElementById("sheet").classList.remove("open");
+      document.getElementById("detail").hidden = true;
+      document.getElementById("listView").hidden = false;
+      if (routeLine) {
+        map.removeLayer(routeLine);
+        routeLine = null;
+      }
+      drawMarkers();
+      map.setView([OFFICE.lat, OFFICE.lng], 15);
+    }
+
+    document.getElementById("list").addEventListener("click", (event) => {
+      const card = event.target.closest("[data-id]");
+      if (card) openDetail(card.dataset.id);
+    });
+    document.getElementById("f-best").onclick = () => setFilter("best");
+    document.getElementById("f-near").onclick = () => setFilter("near");
+    document.getElementById("f-all").onclick = () => setFilter("all");
+    document.getElementById("locate").onclick = () => {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const latlng = [pos.coords.latitude, pos.coords.longitude];
+        if (you) map.removeLayer(you);
+        you = L.circleMarker(latlng, { radius: 8, color: "#1d4e89", fillColor: "#3b82f6", fillOpacity: 1, weight: 2 }).addTo(map);
+        map.setView(latlng, 16);
+      }, () => {
+        const toast = document.getElementById("toast");
+        toast.textContent = "Location is off. You can still start from the Zoomcar pin.";
+        toast.classList.add("show");
+        setTimeout(() => {
+          toast.classList.remove("show");
+          toast.textContent = "Copied. Paste it into Uber.";
+        }, 1800);
+      }, { enableHighAccuracy: true, timeout: 8000 });
+    };
+
+    setFilter("near");
+    setTimeout(() => map.invalidateSize(), 200);
+  </script>
+</body>
+</html>
