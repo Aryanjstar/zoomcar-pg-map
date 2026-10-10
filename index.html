@@ -18,6 +18,7 @@
       --go-deep: #8a3e16;
       --backup: #2f5d73;
       --skip: #8a847a;
+      --no: #c4232b;
       --start: #1f6b52;
       --shadow: 0 10px 30px rgba(28, 25, 21, 0.16);
     }
@@ -295,6 +296,9 @@
     .pin.go { background: var(--go); }
     .pin.backup { background: var(--backup); }
     .pin.skip { background: var(--skip); }
+    .pin.no { background: var(--no); }
+    .card.no { border-color: #e7b4b4; }
+    .tag.no { color: var(--no); }
     .pin.on { outline: 3px solid var(--ink); }
     .start-pin {
       width: 18px;
@@ -510,27 +514,27 @@
       },
       {
         id: "lifestyle",
-        tier: "go",
+        tier: "no",
         name: "New Lifestyle PG for Ladies",
         phone: "74115 89689",
         tel: "+917411589689",
         area: "Domlur 1st Stage",
         address: "763, 1st Main, 3rd Cross Road, Domlur 1st Stage, Bengaluru 560071",
         lat: 12.960047, lng: 77.637207,
-        offer: "Call price: ₹9,000 or ₹10,000 per head. Extra cot in the ₹10,000 room can come out.",
+        offer: "Your note: ₹9,000 or ₹10,000 per head. In the ₹10,000 room, one extra cot can be removed.",
         why: "Close residential Domlur lane, west of the office. Magicbricks still shows an older card at about ₹7,500 for 2-sharing and ₹5,500 for 3-sharing with food. Use the call price.",
         caution: "Only one public review. Look at the room, bathroom, and mattress before any deposit."
       },
       {
         id: "royal",
-        tier: "go",
+        tier: "no",
         name: "Royal Living PG for Ladies",
         phone: "81477 07413",
         tel: "+918147707413",
         area: "HAL 3rd Stage, Kodihalli",
         address: "18/1, 15th Main, 8th Cross Road, HAL 3rd Stage, BDA Layout, Kodihalli, Bengaluru 560008",
         lat: 12.96552, lng: 77.64988,
-        offer: "₹12,500 per person. All amenities. New building with a lift.",
+        offer: "Your note: ₹12,500 per person. All amenities. New building with a lift.",
         why: "Quiet HAL 3rd Stage, under 1 km northeast. 4.9 from 46 reviews. Girls only.",
         caution: "A July 2025 review said cleaning had slipped. See this new building yourself."
       },
@@ -601,14 +605,14 @@
       },
       {
         id: "nlr",
-        tier: "backup",
+        tier: "no",
         name: "NLR Luxury PG for Ladies",
         phone: "97050 60795",
         tel: "+919705060795",
         area: "HAL 3rd Stage, Kodihalli",
         address: "1642, 11th Main Road, HAL 3rd Stage, Kodihalli, Bengaluru 560008",
         lat: 12.96815, lng: 77.64998,
-        offer: "Double sharing is not available. Ask if two singles are.",
+        offer: "Your note: Double sharing not available.",
         why: "Strongest reviews on the list: 4.9 from 49. Food, lift, geyser, biometric. A resident got the deposit back.",
         caution: "Do not walk here expecting the shared double."
       },
@@ -705,14 +709,14 @@
       },
       {
         id: "indiranagar",
-        tier: "skip",
+        tier: "no",
         name: "Indiranagar Ladies PG",
         phone: "77953 68821",
         tel: "+917795368821",
         area: "Near Silicon City School",
         address: "855/1, 5th Cross, 5th Main Road, near Silicon City Public School, Bengaluru 560038",
         lat: 12.98187, lng: 77.64129,
-        offer: "Skipped on the call.",
+        offer: "Your note: Skipped. They are non-veg.",
         why: "Older reviews described pure vegetarian food, close to Indiranagar Metro. 4.8 from 31 reviews.",
         caution: "Call note: skipped, they are non-veg. About 2.4 km north."
       },
@@ -731,14 +735,14 @@
       },
       {
         id: "samskruthi",
-        tier: "skip",
+        tier: "no",
         name: "Samskruthi Living Nandi",
         phone: "63648 36489",
         tel: "+916364836489",
         area: "12th Cross, Indiranagar",
         address: "19, 12th Cross Road, Bengaluru 560038",
         lat: 12.98077, lng: 77.63795,
-        offer: "Ruled out.",
+        offer: "Your note: Veg not preferred, and only 4-sharing is available.",
         why: "Vegetarian PG near a park and the metro.",
         caution: "Veg was not preferred, and only a 4-sharing room was free."
       },
@@ -769,13 +773,13 @@
       },
       {
         id: "manmayi",
-        tier: "skip",
+        tier: "no",
         name: "Manmayi Ladies PG",
         phone: "99007 66337",
         tel: "+919900766337",
         area: "CMH Road, Indiranagar",
         address: "Manmayi PG Mansion, CMH Road, next to Indiranagar Metro, Bengaluru",
-        offer: "3-sharing at ₹15,000 per head. Not worth the trip.",
+        offer: "Your note: 3-sharing at ₹15,000 per head. Not worth it.",
         why: "Newer building by the metro, about 2 km north. Exact door coordinate was not confirmed.",
         caution: "Price is high for a 3-share. Skip unless everything closer is full."
       }
@@ -875,6 +879,7 @@
     }
 
     function tag(p) {
+      if (p.tier === "no") return ["Marked off. Still open if you want it", "no"];
       if (p.fresh && p.tier === "go") return ["New today, strong reviews", ""];
       if (p.fresh) return ["New today", "backup"];
       if (p.tier === "go") return ["Room from the call", ""];
@@ -893,7 +898,7 @@
           : filter === "near"
             ? "Nearest places worth a look"
             : "Everything inside 3 km";
-      sub.textContent = rows.length + " places. Tap a name or a pin to open Google Maps. Gold ring means found today.";
+      sub.textContent = rows.length + " places. Tap a name or a pin to open Google Maps. Red means you marked it off. Gold ring means found today.";
       const list = document.getElementById("list");
       list.innerHTML = rows.map((p) => {
         const [label, cls] = tag(p);
