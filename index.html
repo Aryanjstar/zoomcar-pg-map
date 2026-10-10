@@ -207,6 +207,17 @@
       letter-spacing: 0.04em;
       text-transform: uppercase;
     }
+    .food {
+      display: inline-block;
+      margin-left: 6px;
+      background: #dcead8;
+      color: #1f6b52;
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+    }
     .pin.fresh { box-shadow: 0 0 0 3px #e2a317, 0 4px 10px rgba(0,0,0,.25); }
     .card { position: relative; }
     .info {
@@ -328,6 +339,7 @@
         <h1 id="listTitle">Nearest ladies PGs</h1>
         <p id="listSub">Inside 3 km of the office. Nearest first. Tap one, then Uber or walk.</p>
         <div class="filters">
+          <button type="button" id="f-north">North Indian food</button>
           <button type="button" id="f-today">Found today</button>
           <button type="button" id="f-best">Rooms available</button>
           <button type="button" id="f-near" class="on">Nearest worth a look</button>
@@ -380,6 +392,7 @@
         id: "jaisriram",
         tier: "backup",
         fresh: true,
+        north: true,
         name: "Jai Sri Ram Ladies PG",
         phone: "88843 50510",
         tel: "+918884350510",
@@ -387,7 +400,7 @@
         address: "28/2, 18th Main Road, 5th Phase, HAL 2nd Stage, Kodihalli, Bengaluru 560008",
         lat: 12.962159, lng: 77.645343,
         offer: "Found today. About 300 m north. 2-sharing and 3-sharing, three meals, lunch box.",
-        why: "Google pin is ladies-only. A PG directory lists the owner as Radha Krishna Reddy, second number 96635 19090. Food and attached baths. Source: Google and a Kodihalli PG directory, 10 Oct 2026.",
+        why: "Directory listing says North and South Indian food, three times a day, with a lunch box. Second number 96635 19090. About 300 m north of Tower B. Source: Google and a Kodihalli PG directory, 10 Oct 2026.",
         caution: "Only one public Google review. Treat the directory phone as a lead, and see the room."
       },
       {
@@ -408,6 +421,7 @@
         id: "saibalaji-hal",
         tier: "backup",
         fresh: true,
+        north: true,
         name: "Sri Sai Balaji Luxury PG for Ladies",
         phone: "98446 66450",
         tel: "+919844666450",
@@ -421,6 +435,7 @@
         id: "madhava",
         tier: "backup",
         fresh: true,
+        north: true,
         name: "Madhava Luxury PG for Ladies",
         phone: "94406 20860",
         tel: "+919440620860",
@@ -434,6 +449,7 @@
         id: "sai146",
         tier: "backup",
         fresh: true,
+        north: true,
         name: "Sai Luxury PG for Ladies",
         phone: "94928 18320",
         tel: "+919492818320",
@@ -502,6 +518,7 @@
       {
         id: "future",
         tier: "go",
+        north: true,
         name: "Future Home Ladies PG",
         phone: "76709 71315",
         tel: "+917670971315",
@@ -528,6 +545,7 @@
       {
         id: "royal",
         tier: "no",
+        north: true,
         name: "Royal Living PG for Ladies",
         phone: "81477 07413",
         tel: "+918147707413",
@@ -535,7 +553,7 @@
         address: "18/1, 15th Main, 8th Cross Road, HAL 3rd Stage, BDA Layout, Kodihalli, Bengaluru 560008",
         lat: 12.96552, lng: 77.64988,
         offer: "Your note: ₹12,500 per person. All amenities. New building with a lift.",
-        why: "Quiet HAL 3rd Stage, under 1 km northeast. 4.9 from 46 reviews. Girls only.",
+        why: "Their own site lists North Indian food along with South Indian and Continental. Quiet HAL 3rd Stage, under 1 km northeast. 4.9 from 46 reviews. Girls only.",
         caution: "A July 2025 review said cleaning had slipped. See this new building yourself."
       },
       {
@@ -554,6 +572,7 @@
       {
         id: "divine",
         tier: "go",
+        north: true,
         name: "Divine Dwell PG",
         phone: "70931 23099",
         tel: "+917093123099",
@@ -561,7 +580,7 @@
         address: "2365, 15th Main Road, HAL 2nd Stage, Kodihalli, Bengaluru 560038",
         lat: 12.965652, lng: 77.645409,
         offer: "Same owner number as Nagarjuna. Ask which building has the ₹10,500 singles.",
-        why: "Second building of the closest girls' PG, still a 10 minute walk north of Tower B.",
+        why: "Second building of the closest girls' PG, still a 10 minute walk north of Tower B. A July 2025 review said they serve both South and North Indian food, with two curries at lunch and dinner.",
         caution: "Do not assume the vacant singles are in this building until the owner says so."
       },
       {
@@ -606,6 +625,7 @@
       {
         id: "nlr",
         tier: "no",
+        north: true,
         name: "NLR Luxury PG for Ladies",
         phone: "97050 60795",
         tel: "+919705060795",
@@ -613,7 +633,7 @@
         address: "1642, 11th Main Road, HAL 3rd Stage, Kodihalli, Bengaluru 560008",
         lat: 12.96815, lng: 77.64998,
         offer: "Your note: Double sharing not available.",
-        why: "Strongest reviews on the list: 4.9 from 49. Food, lift, geyser, biometric. A resident got the deposit back.",
+        why: "Residents said the menu has both North and South Indian food. 4.9 from 49 reviews. Food, lift, geyser, biometric. A resident got the deposit back.",
         caution: "Do not walk here expecting the shared double."
       },
       {
@@ -774,6 +794,7 @@
       {
         id: "manmayi",
         tier: "no",
+        north: true,
         name: "Manmayi Ladies PG",
         phone: "99007 66337",
         tel: "+919900766337",
@@ -782,6 +803,21 @@
         offer: "Your note: 3-sharing at ₹15,000 per head. Not worth it.",
         why: "Newer building by the metro, about 2 km north. Exact door coordinate was not confirmed.",
         caution: "Price is high for a 3-share. Skip unless everything closer is full."
+      },
+      {
+        id: "manmayi-2",
+        tier: "no",
+        fresh: true,
+        north: true,
+        name: "Manmayi Ladies PG, second branch",
+        phone: "99007 66337",
+        tel: "+919900766337",
+        area: "13th Main, HAL 2nd Stage",
+        address: "10, 13th Main Road, 1st Cross, HAL 2nd Stage, Doopanahalli, Indiranagar, Bengaluru 560008",
+        lat: 12.967555, lng: 77.640984,
+        offer: "Your note on Manmayi: 3-sharing at ₹15,000 per head. Not worth it. This is their other building, about 0.9 km north.",
+        why: "A resident who is North Indian wrote that the food here worked for them after years in the South. Three meals, cook on site, punch-in security. Same phone as the CMH Road Manmayi. Source: Google, 10 Oct 2026.",
+        caution: "Same owner you already marked off on price. Open it only if you want to check whether this branch is cheaper."
       }
     ];
 
@@ -839,6 +875,7 @@
       return PLACES
         .filter((p) => p.noPin || p.km <= 3.05)
         .filter((p) => {
+          if (filter === "north") return !!p.north;
           if (filter === "today") return !!p.fresh;
           if (filter === "all") return true;
           if (filter === "best") return p.tier === "go";
@@ -891,7 +928,9 @@
       const rows = visible();
       const title = document.getElementById("listTitle");
       const sub = document.getElementById("listSub");
-      title.textContent = filter === "today"
+      title.textContent = filter === "north"
+        ? "North Indian food"
+        : filter === "today"
         ? "Found today, 10 Oct"
         : filter === "best"
           ? "Rooms you can still take"
@@ -904,7 +943,7 @@
         const [label, cls] = tag(p);
         const dist = p.noPin ? "Maps" : p.km.toFixed(1) + " km";
         const walk = p.noPin ? "Tap for Google Maps" : p.walkMin + " min walk";
-        const badge = p.fresh ? '<span class="today">Found 10 Oct</span>' : "";
+        const badge = (p.fresh ? '<span class="today">Found 10 Oct</span>' : "") + (p.north ? '<span class="food">North Indian food</span>' : "");
         return `<div class="card ${p.tier}">
           <button class="go-maps" type="button" data-maps="${p.id}">
             <div class="km">${dist}<small>${walk}</small></div>
@@ -921,7 +960,7 @@
 
     function setFilter(next) {
       filter = next;
-      ["today", "best", "near", "all"].forEach((id) => {
+      ["north", "today", "best", "near", "all"].forEach((id) => {
         document.getElementById("f-" + id).classList.toggle("on", id === next);
       });
       if (selected && !visible().some((p) => p.id === selected.id)) closeDetail();
@@ -1046,6 +1085,7 @@
       if (info) openDetail(info.dataset.info);
       else if (maps) openMaps(PLACES.find((item) => item.id === maps.dataset.maps));
     });
+    document.getElementById("f-north").onclick = () => setFilter("north");
     document.getElementById("f-today").onclick = () => setFilter("today");
     document.getElementById("f-best").onclick = () => setFilter("best");
     document.getElementById("f-near").onclick = () => setFilter("near");
