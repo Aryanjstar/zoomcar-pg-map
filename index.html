@@ -145,12 +145,22 @@
       background: #fff;
       border: 1px solid var(--line);
       border-radius: 16px;
-      padding: 12px;
+      padding: 0;
       margin-bottom: 8px;
+      position: relative;
+    }
+    .go-maps {
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      color: inherit;
+      background: transparent;
+      border: 0;
       display: grid;
       grid-template-columns: 64px 1fr;
       gap: 10px;
       align-items: center;
+      padding: 12px 12px 34px;
     }
     .card.go { border-color: #efd3c4; }
     .km {
@@ -184,6 +194,32 @@
     }
     .tag.backup { color: var(--backup); }
     .tag.skip { color: var(--skip); }
+    .today {
+      display: inline-block;
+      margin-left: 6px;
+      background: #f3d48a;
+      color: #5c3b00;
+      border-radius: 999px;
+      padding: 2px 7px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .pin.fresh { box-shadow: 0 0 0 3px #e2a317, 0 4px 10px rgba(0,0,0,.25); }
+    .card { position: relative; }
+    .info {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 750;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+    }
     .detail h2 { margin: 0 0 4px; font-size: 22px; line-height: 1.15; }
     .detail .lead {
       font-size: 16px;
@@ -277,7 +313,7 @@
     <div class="start-card">
       <p>Start here</p>
       <strong>Zoomcar, Diamond District</strong>
-      <span>Tower B, HAL Old Airport Road. Then tap a PG.</span>
+      <span>Tower B. Tap a pin or a name to open Google Maps.</span>
     </div>
     <button class="locate" id="locate" type="button">Me</button>
   </div>
@@ -288,6 +324,7 @@
         <h1 id="listTitle">Nearest ladies PGs</h1>
         <p id="listSub">Inside 3 km of the office. Nearest first. Tap one, then Uber or walk.</p>
         <div class="filters">
+          <button type="button" id="f-today">Found today</button>
           <button type="button" id="f-best">Rooms available</button>
           <button type="button" id="f-near" class="on">Nearest worth a look</button>
           <button type="button" id="f-all">All within 3 km</button>
@@ -307,6 +344,101 @@
     };
 
     const PLACES = [
+      {
+        id: "alekhya",
+        tier: "backup",
+        fresh: true,
+        name: "Alekhya Reddy Ladies PG",
+        phone: "77603 23079",
+        tel: "+917760323079",
+        area: "Kodihalli, 1st Main",
+        address: "582, 1st Main Road, Kodihalli, Bengaluru 560008",
+        lat: 12.958039, lng: 77.645152,
+        offer: "Found today. About 250 m south of Tower B. Listing from ₹6,500 with food, but confirm the current rent.",
+        why: "Google rating 4.8 from 38 reviews. Magicbricks lists it as girls-only, food included, deposit about ₹3,000, single through 4-sharing. Source: Google and Magicbricks, 10 Oct 2026.",
+        caution: "One review said there is no CCTV and that men from the owner's family stay in the building. Walk over, look, and do not pay if that is still true."
+      },
+      {
+        id: "valli",
+        tier: "backup",
+        fresh: true,
+        name: "Sri Valli PG",
+        phone: "82967 28558",
+        tel: "+918296728558",
+        area: "HAL 2nd Stage, beside DS Residency",
+        address: "A/1, No 668, 3rd Cross Road, beside DS Residency, HAL 2nd Stage, Kodihalli, Bengaluru 560008",
+        lat: 12.961289, lng: 77.646753,
+        offer: "Found today. About 300 m from the office. Ask on the call if it is girls-only.",
+        why: "Google rating 4.6 from 22 reviews. Several say the food is homely and the owners are decent. Source: Google, 10 Oct 2026.",
+        caution: "A 2024 review said the food was poor. The listing name does not say ladies. Confirm before you go in."
+      },
+      {
+        id: "jaisriram",
+        tier: "backup",
+        fresh: true,
+        name: "Jai Sri Ram Ladies PG",
+        phone: "88843 50510",
+        tel: "+918884350510",
+        area: "18th Main, HAL 2nd Stage",
+        address: "28/2, 18th Main Road, 5th Phase, HAL 2nd Stage, Kodihalli, Bengaluru 560008",
+        lat: 12.962159, lng: 77.645343,
+        offer: "Found today. About 300 m north. 2-sharing and 3-sharing, three meals, lunch box.",
+        why: "Google pin is ladies-only. A PG directory lists the owner as Radha Krishna Reddy, second number 96635 19090. Food and attached baths. Source: Google and a Kodihalli PG directory, 10 Oct 2026.",
+        caution: "Only one public Google review. Treat the directory phone as a lead, and see the room."
+      },
+      {
+        id: "janvika",
+        tier: "go",
+        fresh: true,
+        name: "Janvika Stay Homes for Ladies",
+        phone: "89040 53729",
+        tel: "+918904053729",
+        area: "HAL 2nd Stage, near Leela Palace",
+        address: "47, 4th Cross, Kodihalli Main Road, 5th Phase, HAL 2nd Stage, Kodihalli, Bengaluru 560008",
+        lat: 12.961809, lng: 77.647846,
+        offer: "Found today. Their site says from ₹13,000, single ₹23,000. A Housing listing shows beds from ₹9,500. Call and ask.",
+        why: "Best new find. Google rating 5.0 from 40 reviews, many from late 2025. Clean rooms, food, Wi-Fi, lift, quiet lane. Second number on Google: 83173 15872. Source: Google and their site, 10 Oct 2026.",
+        caution: "Two different rents are online. Confirm which room is free for two friends before you leave the office."
+      },
+      {
+        id: "saibalaji-hal",
+        tier: "backup",
+        fresh: true,
+        name: "Sri Sai Balaji Luxury PG for Ladies",
+        phone: "98446 66450",
+        tel: "+919844666450",
+        area: "HAL 2nd Stage, opposite Anjaneya Tech Park",
+        address: "6, 6th Cross, 6th Main, HAL 2nd Stage, Kodihalli, opposite Anjaneya Tech Park and Diamond District, near Leela Palace, Bengaluru 560008",
+        offer: "Found today. 1 to 4 sharing, North and South food, three meals. Second number 80889 97979.",
+        why: "Listed opposite Diamond District. Magicpin shows 4.7 from 6 ratings. Attached bath, Wi-Fi, hot water. Source: Magicpin and a Kodihalli PG directory, 10 Oct 2026.",
+        caution: "The door pin was not exact enough to drop on this map. Tap opens Google Maps with the address so Google places the pin."
+      },
+      {
+        id: "madhava",
+        tier: "backup",
+        fresh: true,
+        name: "Madhava Luxury PG for Ladies",
+        phone: "94406 20860",
+        tel: "+919440620860",
+        area: "Kodihalli Main Road, near Manipal Global",
+        address: "1, Kodihalli Main Road, near Manipal Global, Old Airport Road, near Leela Palace and Diamond District, Bengaluru 560008",
+        offer: "Found today. 1 to 4 sharing, three meals plus a lunch box. Second number 99481 17525.",
+        why: "Directory listing places it on Kodihalli Main Road beside the office belt. CCTV, attached baths, fridge, washing machine. Source: Kodihalli PG directory, 10 Oct 2026.",
+        caution: "No Google rating turned up today. Tap to open the address in Google Maps, then call before you commit."
+      },
+      {
+        id: "sai146",
+        tier: "backup",
+        fresh: true,
+        name: "Sai Luxury PG for Ladies",
+        phone: "94928 18320",
+        tel: "+919492818320",
+        area: "Old Airport Road, above the old Dena Bank",
+        address: "146, Old Airport Road, near Diamond District, Kodihalli Main Road, on top of Dena Bank, Bengaluru 560008",
+        offer: "Found today. On the same road as the office. 1 to 4 sharing, three meals and a lunch box. Second number 84999 67225.",
+        why: "Directory listing says Old Airport Road, near Diamond District and Leela Palace. CCTV and attached baths. Source: Kodihalli PG directory, 10 Oct 2026.",
+        caution: "No separate Google rating today. Google Maps will search this address when you tap."
+      },
       {
         id: "future",
         tier: "go",
@@ -608,7 +740,7 @@
         p.km = kmBetween(OFFICE, p);
         p.walkMin = Math.max(6, Math.round(p.km * 1.35 / 4.6 * 60));
       } else {
-        p.km = p.id === "manmayi" ? 2.1 : 1.3;
+        p.km = 99;
         p.walkMin = null;
         p.noPin = true;
       }
@@ -645,15 +777,20 @@
 
     function visible() {
       return PLACES
-        .filter((p) => p.km <= 3.05)
-        .filter((p) => filter === "all" || (filter === "best" ? p.tier === "go" : p.tier !== "skip"))
-        .sort((a, b) => a.km - b.km);
+        .filter((p) => p.noPin || p.km <= 3.05)
+        .filter((p) => {
+          if (filter === "today") return !!p.fresh;
+          if (filter === "all") return true;
+          if (filter === "best") return p.tier === "go";
+          return p.tier !== "skip";
+        })
+        .sort((a, b) => (a.noPin === b.noPin ? a.km - b.km : a.noPin ? 1 : -1));
     }
 
     function pinIcon(p, on) {
       return L.divIcon({
         className: "pin-wrap",
-        html: `<div class="pin ${p.tier} ${on ? "on" : ""}"><b>${p.km.toFixed(1)}</b></div>`,
+        html: `<div class="pin ${p.tier} ${p.fresh ? "fresh" : ""} ${on ? "on" : ""}"><b>${p.km.toFixed(1)}</b></div>`,
         iconSize: [42, 42],
         iconAnchor: [21, 21]
       });
@@ -675,13 +812,15 @@
           markers.get(p.id).setIcon(icon);
         } else {
           const marker = L.marker([p.lat, p.lng], { icon, title: p.name }).addTo(map);
-          marker.on("click", () => openDetail(p.id));
+          marker.on("click", () => openMaps(p));
           markers.set(p.id, marker);
         }
       });
     }
 
     function tag(p) {
+      if (p.fresh && p.tier === "go") return ["New today, strong reviews", ""];
+      if (p.fresh) return ["New today", "backup"];
       if (p.tier === "go") return ["Room from the call", ""];
       if (p.tier === "backup") return ["Call again, still close", "backup"];
       return ["Ruled out for now", "skip"];
@@ -691,31 +830,37 @@
       const rows = visible();
       const title = document.getElementById("listTitle");
       const sub = document.getElementById("listSub");
-      title.textContent = filter === "best"
-        ? "Rooms you can still take"
-        : filter === "near"
-          ? "Nearest places worth a look"
-          : "Everything inside 3 km";
-      sub.textContent = rows.length + " places, nearest first. The number on each pin is kilometres from Zoomcar.";
+      title.textContent = filter === "today"
+        ? "Found today, 10 Oct"
+        : filter === "best"
+          ? "Rooms you can still take"
+          : filter === "near"
+            ? "Nearest places worth a look"
+            : "Everything inside 3 km";
+      sub.textContent = rows.length + " places. Tap a name or a pin to open Google Maps. Gold ring means found today.";
       const list = document.getElementById("list");
       list.innerHTML = rows.map((p) => {
         const [label, cls] = tag(p);
-        const dist = p.noPin ? "Pin?" : p.km.toFixed(1) + " km";
-        const walk = p.walkMin ? p.walkMin + " min walk" : "Paste address";
-        return `<button class="card ${p.tier}" type="button" data-id="${p.id}">
-          <div class="km">${dist}<small>${walk}</small></div>
-          <div>
-            <h2>${p.name}</h2>
-            <p class="meta">${p.offer}</p>
-            <span class="tag ${cls}">${label}</span>
-          </div>
-        </button>`;
+        const dist = p.noPin ? "Maps" : p.km.toFixed(1) + " km";
+        const walk = p.noPin ? "Tap for Google Maps" : p.walkMin + " min walk";
+        const badge = p.fresh ? '<span class="today">Found 10 Oct</span>' : "";
+        return `<div class="card ${p.tier}">
+          <button class="go-maps" type="button" data-maps="${p.id}">
+            <div class="km">${dist}<small>${walk}</small></div>
+            <div>
+              <h2>${p.name}${badge}</h2>
+              <p class="meta">${p.offer}</p>
+              <span class="tag ${cls}">${label}</span>
+            </div>
+          </button>
+          <button class="info" type="button" data-info="${p.id}">Details</button>
+        </div>`;
       }).join("");
     }
 
     function setFilter(next) {
       filter = next;
-      ["best", "near", "all"].forEach((id) => {
+      ["today", "best", "near", "all"].forEach((id) => {
         document.getElementById("f-" + id).classList.toggle("on", id === next);
       });
       if (selected && !visible().some((p) => p.id === selected.id)) closeDetail();
@@ -747,9 +892,14 @@
       }
     }
 
-    function mapsWalk(p) {
-      const dest = p.noPin ? encodeURIComponent(p.address) : `${p.lat},${p.lng}`;
-      return `https://www.google.com/maps/dir/?api=1&origin=${OFFICE.lat},${OFFICE.lng}&destination=${dest}&travelmode=${p.km < 1.3 && !p.noPin ? "walking" : "driving"}`;
+    function mapsLink(p) {
+      const dest = p.noPin ? encodeURIComponent(p.name + ", " + p.address) : `${p.lat},${p.lng}`;
+      const mode = !p.noPin && p.km < 1.4 ? "walking" : "driving";
+      return `https://www.google.com/maps/dir/?api=1&origin=${OFFICE.lat},${OFFICE.lng}&destination=${dest}&travelmode=${mode}`;
+    }
+
+    function openMaps(p) {
+      window.location.href = mapsLink(p);
     }
 
     function uberLink(p) {
@@ -783,12 +933,13 @@
         <p class="note">${p.caution}</p>
         <p class="addr">${p.address}</p>
         <div class="actions">
-          <button class="primary" type="button" id="copyBtn">Copy address for Uber</button>
+          <button class="primary" type="button" id="mapsBtn">Open in Google Maps</button>
+          <button type="button" id="copyBtn">Copy address for Uber</button>
           <button type="button" id="uberBtn">Open Uber</button>
-          <button type="button" id="walkBtn">${p.km < 1.3 && !p.noPin ? "Walk" : "Google Maps"}</button>
           ${p.tel ? `<button type="button" id="callBtn">Call ${p.phone}</button>` : ""}
         </div>`;
       document.getElementById("back").onclick = closeDetail;
+      document.getElementById("mapsBtn").onclick = () => openMaps(p);
       document.getElementById("copyBtn").onclick = async () => {
         const text = copyBlock(p);
         try {
@@ -806,7 +957,6 @@
         setTimeout(() => toast.classList.remove("show"), 1600);
       };
       document.getElementById("uberBtn").onclick = () => window.open(uberLink(p), "_blank");
-      document.getElementById("walkBtn").onclick = () => window.open(mapsWalk(p), "_blank");
       const call = document.getElementById("callBtn");
       if (call) call.onclick = () => { window.location.href = "tel:" + p.tel; };
       drawMarkers();
@@ -830,9 +980,12 @@
     }
 
     document.getElementById("list").addEventListener("click", (event) => {
-      const card = event.target.closest("[data-id]");
-      if (card) openDetail(card.dataset.id);
+      const info = event.target.closest("[data-info]");
+      const maps = event.target.closest("[data-maps]");
+      if (info) openDetail(info.dataset.info);
+      else if (maps) openMaps(PLACES.find((item) => item.id === maps.dataset.maps));
     });
+    document.getElementById("f-today").onclick = () => setFilter("today");
     document.getElementById("f-best").onclick = () => setFilter("best");
     document.getElementById("f-near").onclick = () => setFilter("near");
     document.getElementById("f-all").onclick = () => setFilter("all");
