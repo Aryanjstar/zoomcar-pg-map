@@ -19,6 +19,7 @@
       --backup: #2f5d73;
       --skip: #8a847a;
       --no: #c4232b;
+      --hw: #5b3a8c;
       --start: #1f6b52;
       --shadow: 0 10px 30px rgba(28, 25, 21, 0.16);
     }
@@ -182,6 +183,7 @@
     }
     .card.go { background: #fffaf6; }
     .card.no { background: #fff5f5; border-color: #e7b4b4; }
+    .card.hw { background: #f7f3fb; border-color: #d9cbe8; }
     .km {
       font-size: 20px;
       font-weight: 750;
@@ -190,6 +192,7 @@
       padding-top: 2px;
     }
     .card.no .km { color: var(--no); }
+    .card.hw .km { color: var(--hw); }
     .km small {
       display: block;
       margin-top: 4px;
@@ -245,6 +248,7 @@
     .tag.backup { color: var(--backup); }
     .tag.skip { color: var(--skip); }
     .tag.no { color: var(--no); }
+    .tag.hw { color: var(--hw); }
     .today, .food {
       display: inline-block;
       border-radius: 999px;
@@ -259,6 +263,7 @@
       text-transform: uppercase;
     }
     .food { background: #dcead8; color: #1f6b52; }
+    .hw-pill { background: #efe6f7; color: var(--hw); }
     .filters {
       display: flex;
       gap: 6px;
@@ -368,6 +373,7 @@
     .pin.backup { background: var(--backup); }
     .pin.skip { background: var(--skip); }
     .pin.no { background: var(--no); }
+    .pin.hw { background: var(--hw); }
     .card.no { border-color: #e7b4b4; }
     .tag.no { color: var(--no); }
     .pin.on { outline: 3px solid var(--ink); }
@@ -400,6 +406,7 @@
         <p id="listSub">Inside 3 km of the office. Nearest first. Tap one, then Uber or walk.</p>
         <div class="filters">
           <button type="button" id="f-north">North food</button>
+          <button type="button" id="f-hw">HelloWorld</button>
           <button type="button" id="f-today">Today</button>
           <button type="button" id="f-best">Rooms</button>
           <button type="button" id="f-near" class="on">Nearest</button>
@@ -878,6 +885,51 @@
         offer: "Your note on Manmayi: 3-sharing at ₹15,000 per head. Not worth it. This is their other building, about 0.9 km north.",
         why: "A resident who is North Indian wrote that the food here worked for them after years in the South. Three meals, cook on site, punch-in security. Same phone as the CMH Road Manmayi. Source: Google, 10 Oct 2026.",
         caution: "Same owner you already marked off on price. Open it only if you want to check whether this branch is cheaper."
+      },
+      {
+        id: "hw-domlur",
+        tier: "hw",
+        hw: true,
+        name: "HelloWorld Domlur",
+        phone: "888 000 88 88",
+        tel: "+918880008888",
+        site: "https://thehelloworld.com/coliving-in-bangalore/domlur/helloworld-domlur",
+        area: "Rustam Bagh, near Manipal Hospital",
+        address: "1st Cross, Rustam Bagh Main Road, opposite Sraddha Vista, near Manipal Hospital, Murugeshpalya, Bengaluru 560017",
+        lat: 12.9549, lng: 77.649605,
+        offer: "Closest HelloWorld, about 0.8 km. Sharing from ₹16,999 a head. Food is not included. Girls and boys, not a ladies PG.",
+        why: "Official site, checked 11 Oct 2026: Club sharing ₹16,999, Club private ₹31,999, Classic ₹33,999, Comfort ₹42,999. Deposit is 1 month of rent. Lock-in is 1 month, so a 6-month stay is allowed. No brokerage. Wi-Fi is included. Meals are not. Houssed lists a twin at ₹16,000 and a private at ₹30,000. Lift, kitchen, and housekeeping.",
+        caution: "Sharing here is well above the ₹9,500 double with North Indian food at Future Home, and you still pay for food. It is co-ed. Ask whether GST is extra, and pay only on the HelloWorld app or an invoice link."
+      },
+      {
+        id: "hw-indiranagar",
+        tier: "hw",
+        hw: true,
+        name: "HelloWorld Indiranagar",
+        phone: "888 000 88 88",
+        tel: "+918880008888",
+        site: "https://thehelloworld.com/coliving-in-bangalore/domlur/helloworld-indiranagar",
+        area: "Murugeshpalya, Ammanamma Layout",
+        address: "Main Road, Ammanamma Layout, Murgeshpalya, Bengaluru 560017",
+        lat: 12.952926, lng: 77.653503,
+        offer: "Best HelloWorld price for two. Sharing from ₹8,999 a head. Private from ₹21,999. Food is not included. Girls and boys.",
+        why: "Official site, checked 11 Oct 2026: Classic sharing ₹8,999, Club sharing ₹11,999, Club private ₹21,999, Classic private ₹24,999. Deposit is 1 month. Lock-in is 1 month. No brokerage. Wi-Fi included, meals not included. Token to hold a bed is ₹999. Houssed lists a twin at ₹13,000 and a triple at ₹11,000, so confirm which room is actually free. About 1.3 km east of Tower B. Central phone 888 000 88 88.",
+        caution: "Not a ladies-only PG. A resident review of this Murugeshpalya building said GST plus move-in and move-out charges were extra, and that new tenants were quoted less than people already staying. Get the full monthly bill, including GST and food, before you pay."
+      },
+      {
+        id: "hw-bali",
+        tier: "hw",
+        hw: true,
+        name: "HelloWorld Bali",
+        phone: "888 000 88 88",
+        tel: "+918880008888",
+        site: "https://thehelloworld.com/coliving-in-bangalore/indiranagar/helloworld-bali",
+        area: "HAL 3rd Stage, New Thippasandra",
+        address: "11-A, 6th Main Road, 4th Cross, behind Ayyappa Temple, HAL 3rd Stage, Bhoomi Reddy Colony, New Thippasandra, Bengaluru 560075",
+        lat: 12.974756, lng: 77.651873,
+        offer: "Sharing from ₹17,000 a head. Private ₹32,000. Food is not included. About 1.8 km. Girls and boys.",
+        why: "Official site, checked 11 Oct 2026: Club sharing ₹17,000, Club private ₹32,000, Classic ₹32,000. Deposit is 1 month. Lock-in is 1 month. No brokerage. Wi-Fi included, meals not included. Lift, kitchen, fridge, and housekeeping. Same central number, 888 000 88 88.",
+        caution: "Same issue as Domlur: a shared bed costs more than the Future Home double, and food is on top. It is co-ed, not ladies-only. Ask if GST is extra before you book."
       }
     ];
 
@@ -936,10 +988,11 @@
         .filter((p) => p.noPin || p.km <= 3.05)
         .filter((p) => {
           if (filter === "north") return !!p.north;
+          if (filter === "hw") return !!p.hw;
           if (filter === "today") return !!p.fresh;
           if (filter === "all") return true;
           if (filter === "best") return p.tier === "go";
-          return p.tier !== "skip";
+          return p.tier !== "skip" && !p.hw;
         })
         .sort((a, b) => (a.noPin === b.noPin ? a.km - b.km : a.noPin ? 1 : -1));
     }
@@ -976,6 +1029,7 @@
     }
 
     function tag(p) {
+      if (p.hw) return ["HelloWorld. Girls and boys", "hw"];
       if (p.tier === "no") return ["Marked off. Still open if you want it", "no"];
       if (p.fresh && p.tier === "go") return ["New today, strong reviews", ""];
       if (p.fresh) return ["New today", "backup"];
@@ -990,6 +1044,8 @@
       const sub = document.getElementById("listSub");
       title.textContent = filter === "north"
         ? "North Indian food"
+        : filter === "hw"
+        ? "HelloWorld coliving"
         : filter === "today"
         ? "Found today, 10 Oct"
         : filter === "best"
@@ -1003,7 +1059,7 @@
         const [label, cls] = tag(p);
         const dist = p.noPin ? "Maps" : p.km.toFixed(1);
         const walk = p.noPin ? "open maps" : "km · " + p.walkMin + " min";
-        const pills = (p.north ? '<span class="food">North Indian food</span>' : "") + (p.fresh ? '<span class="today">10 Oct</span>' : "");
+        const pills = (p.hw ? '<span class="hw-pill">Girls and boys</span>' : "") + (p.north ? '<span class="food">North Indian food</span>' : "") + (p.fresh ? '<span class="today">10 Oct</span>' : "");
         const call = p.tel ? `<a class="mini" href="tel:${p.tel}">Call</a>` : "";
         return `<article class="card ${p.tier}">
           <button class="go-maps" type="button" data-maps="${p.id}">
@@ -1025,7 +1081,7 @@
 
     function setFilter(next) {
       filter = next;
-      ["north", "today", "best", "near", "all"].forEach((id) => {
+      ["north", "hw", "today", "best", "near", "all"].forEach((id) => {
         document.getElementById("f-" + id).classList.toggle("on", id === next);
       });
       if (selected && !visible().some((p) => p.id === selected.id)) closeDetail();
@@ -1045,6 +1101,8 @@
         const data = await res.json();
         const coords = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
         const metres = data.routes[0].distance;
+        const expected = p.km * 1.35 * 1000;
+        if (metres > expected * 1.8) return;
         const mins = Math.max(6, Math.round(metres / 1000 / 4.6 * 60));
         routeLine = L.polyline(coords, { color: "#1f6b52", weight: 5, opacity: 0.9 }).addTo(map);
         const walk = document.getElementById("walkLine");
@@ -1103,6 +1161,7 @@
           <button class="primary" type="button" id="mapsBtn">Open in Google Maps</button>
           <button type="button" id="copyBtn">Copy address for Uber</button>
           <button type="button" id="uberBtn">Open Uber</button>
+          ${p.site ? `<button type="button" id="siteBtn">Open HelloWorld page</button>` : ""}
           ${p.tel ? `<button type="button" id="callBtn">Call ${p.phone}</button>` : ""}
         </div>`;
       document.getElementById("back").onclick = closeDetail;
@@ -1124,6 +1183,8 @@
         setTimeout(() => toast.classList.remove("show"), 1600);
       };
       document.getElementById("uberBtn").onclick = () => window.open(uberLink(p), "_blank");
+      const site = document.getElementById("siteBtn");
+      if (site) site.onclick = () => window.open(p.site, "_blank");
       const call = document.getElementById("callBtn");
       if (call) call.onclick = () => { window.location.href = "tel:" + p.tel; };
       drawMarkers();
@@ -1156,6 +1217,7 @@
       document.getElementById("sheet").classList.toggle("tall");
     };
     document.getElementById("f-north").onclick = () => setFilter("north");
+    document.getElementById("f-hw").onclick = () => setFilter("hw");
     document.getElementById("f-today").onclick = () => setFilter("today");
     document.getElementById("f-best").onclick = () => setFilter("best");
     document.getElementById("f-near").onclick = () => setFilter("near");
