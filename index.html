@@ -28,7 +28,9 @@
       font-family: "Avenir Next", "Segoe UI", sans-serif;
       color: var(--ink);
       background: var(--paper);
+      overflow: hidden;
     }
+    button { touch-action: manipulation; }
     #map { position: fixed; inset: 0; }
     .top {
       position: fixed;
@@ -87,23 +89,43 @@
       left: 0;
       right: 0;
       bottom: 0;
-      max-height: 52%;
+      height: 62dvh;
+      max-height: 62dvh;
       background: var(--sheet);
       border-radius: 22px 22px 0 0;
       box-shadow: 0 -8px 30px rgba(28, 25, 21, 0.14);
       display: flex;
       flex-direction: column;
+      overflow: hidden;
       padding-bottom: env(safe-area-inset-bottom);
     }
-    .sheet.open { max-height: 74%; }
+    .sheet.open, .sheet.tall { height: 88dvh; max-height: 88dvh; }
     .grab {
+      flex: 0 0 auto;
+      width: 100%;
+      height: 28px;
+      border: 0;
+      background: transparent;
+      padding: 0;
+    }
+    .grab::before {
+      content: "";
+      display: block;
       width: 42px;
       height: 4px;
       border-radius: 99px;
       background: #d9d0c3;
-      margin: 8px auto 6px;
+      margin: 12px auto 0;
     }
-    .sheet-head { padding: 0 16px 8px; }
+    #listView {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+    }
+    [hidden] { display: none !important; }
+    .sheet-head { flex: 0 0 auto; padding: 0 16px 8px; }
     .sheet-head h1 {
       margin: 0;
       font-size: 18px;
@@ -115,7 +137,15 @@
       font-size: 13px;
       line-height: 1.35;
     }
-    .filters { display: flex; gap: 6px; overflow-x: auto; }
+    .filters {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+      touch-action: pan-x;
+      padding-bottom: 2px;
+    }
     .filters button, .actions button, .back {
       font: inherit;
       border: 1px solid var(--line);
@@ -125,7 +155,8 @@
     .filters button {
       flex: 0 0 auto;
       border-radius: 999px;
-      padding: 8px 12px;
+      padding: 10px 12px;
+      min-height: 40px;
       font-size: 13px;
       font-weight: 650;
     }
@@ -135,9 +166,15 @@
       border-color: var(--ink);
     }
     .list, .detail {
-      overflow: auto;
-      padding: 4px 12px 16px;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      touch-action: pan-y;
+      padding: 4px 12px 24px;
     }
+    .detail { display: block; }
     .card {
       width: 100%;
       text-align: left;
@@ -177,7 +214,13 @@
       font-weight: 650;
       color: var(--muted);
     }
-    .card h2 { margin: 0; font-size: 15px; line-height: 1.25; }
+    .card h2 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.3;
+      padding-right: 4px;
+    }
+    .card h2 .today, .card h2 .food { margin: 4px 6px 0 0; }
     .card .meta, .detail .meta {
       margin: 3px 0 0;
       color: var(--muted);
@@ -333,7 +376,7 @@
     <button class="locate" id="locate" type="button">Me</button>
   </div>
   <section class="sheet" id="sheet">
-    <div class="grab"></div>
+    <button class="grab" id="grab" type="button" aria-label="Show more of the list"></button>
     <div id="listView">
       <div class="sheet-head">
         <h1 id="listTitle">Nearest ladies PGs</h1>
@@ -1085,6 +1128,9 @@
       if (info) openDetail(info.dataset.info);
       else if (maps) openMaps(PLACES.find((item) => item.id === maps.dataset.maps));
     });
+    document.getElementById("grab").onclick = () => {
+      document.getElementById("sheet").classList.toggle("tall");
+    };
     document.getElementById("f-north").onclick = () => setFilter("north");
     document.getElementById("f-today").onclick = () => setFilter("today");
     document.getElementById("f-best").onclick = () => setFilter("best");
